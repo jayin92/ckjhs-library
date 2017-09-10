@@ -38,7 +38,7 @@ conti = ''
 while True:
 	os.system(clean)
 	if conti == 'y':
-		mode = 'b'
+		mode = 'r'
 	else:
 		mode = input('輸入b來借書, r來還書 >')
 	if mode == 'b':
