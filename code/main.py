@@ -72,9 +72,9 @@ while True:
 		if len(userBook) == 0:
 			os.system(clean)
 			print('找不到這本書, 請確認ISBN是否正確')
-		elif userBook['借出'] is not None:
+		elif not len(userBook['借出']) == 0:
 			os.system(clean)
-			print(userBook['書籍名稱']+'以被'+str(userBook['借出'])+'借出')
+			print(userBook['書籍名稱']+'已被'+str(userBook['借出'])+'借出')
 			print('請選擇其他書籍 ：）')
 			time.sleep(5)
 		else:
