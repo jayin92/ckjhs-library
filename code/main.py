@@ -138,7 +138,7 @@ while True:
 							if confirm == 'y':
 								i = 2
 								for item in borrowData:
-									if book[1] == item['ISBN']:
+									if book[1] == item['ISBN']and len(borrowSheet.cell(i,6).value) == 0:
 										borrowSheet.update_cell(i,6,time.strftime(fmt))
 									i += 1
 								i = 2
