@@ -72,7 +72,7 @@ while True:
 		if len(userBook) == 0:
 			os.system(clean)
 			print('找不到這本書, 請確認ISBN是否正確')
-		elif not len(userBook['借出']) == 0:
+		elif not len(str(userBook['借出'])) == 0:
 			os.system(clean)
 			print(userBook['書籍名稱']+'已被'+str(userBook['借出'])+'借出')
 			print('請選擇其他書籍 ：）')
@@ -146,12 +146,12 @@ while True:
 									if book[1] == item['ISBN']:
 										bookSheet.update_cell(i,5,'')
 									i += 1
-								conti = input('還有要歸還的書嗎？, 有請輸入 y, 無則輸入 n')
+								updateSheet()
+								print('已成功歸還')
+								conti = input('還有要歸還的書嗎？, 有請輸入 y, 無則輸入 n >')
 								if not conti == 'y':
 									userName = ''
-
 								rentBook = []
-								updateSheet()
 							else:
 								print('已取消')
 								time.sleep(2)
