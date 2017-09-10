@@ -63,7 +63,7 @@ while True:
 			isbn = ''
 			# mode = ''
 		userBook = ''
-		row = 1
+		row = 2
 		for book in bookData:
 			if str(book['ISBN']) == isbn:
 				userBook = book
@@ -115,7 +115,8 @@ while True:
 		else:
 			for item in borrowData:
 				if str(item['借閱人班級座號']) == userNum:
-					rentBook.append(item['借閱書籍'])
+					rentBookList=[item['借閱書籍'], item['ISBN']]
+					rentBook.append(rentBookList)
 			if len(rentBook) == 0:
 				os.system(clean)
 				print('您沒有已借閱的書, 先去借書再來吧 ：）')
@@ -123,4 +124,36 @@ while True:
 				print('您借的書如下：')
 				for item in rentBook:
 					print(item)
-				time.sleep(5)
+				returnBook = input('若要歸還,請刷書的條碼或輸入q取消 >')
+				if returnBook == 'q':
+					print('已取消')
+				else:
+					i = 2
+					for book in rentBook:
+						if book[1] == int(returnBook) and len(borrowSheet.cell(i,6).value) == 0:
+							print('您確定您要歸還'+book[0]+'嗎？')
+							confirm = input('確定輸入y, 取消輸入 n > ')
+							if confirm == 'y':
+								i = 2
+								for item in borrowData:
+									if book[1] == item['ISBN']:
+										borrowSheet.update_cell(i,6,time.strftime(fmt))
+									i += 1
+								i = 2
+								for item in bookData:
+									if book[1] == item['ISBN']:
+										bookSheet.update_cell(i,5,'')
+									i += 1
+								conti = input('還有要歸還的書嗎？, 有請輸入 y, 無則輸入 n')
+								if not conti == 'y':
+									userName = ''																	
+
+								rentBook = []
+								updateSheet()
+							else:
+								print('已取消')
+								time.sleep(2)
+						else:
+							print('沒有在您的借閱紀錄中找到這本書, 請重新掃條碼')
+							time.sleep(2)
+						i += 1
