@@ -22,18 +22,22 @@ fmt = '%Y/%m/%d %H:%M:%S'
 isbn = ''
 # borrowSheet.resize(1)
 def updateSheet():
-	global borrowSheet, userSheet, bookSheet, userData, bookData
+	global borrowSheet, userSheet, bookSheet, userData, bookData, borrowData
 	borrowSheet = client.open('圖書總表').worksheet('借閱總表')
 	userSheet = client.open('圖書總表'). worksheet('借閱人總表')
 	bookSheet = client.open('圖書總表'). worksheet('書籍總表')
 	userData = userSheet.get_all_records()
 	bookData = bookSheet.get_all_records()
+	borrowData = borrowSheet.get_all_records()
 userName = ''
 borrowBook = False
 os.system(clean)
 updateSheet()
+mode = 'b'
 while True:
-	while True:
+	mode = input('輸入b來借書, r來還書 >')
+	print(mode)
+	if mode == 'b':
 		if len(userName) == 0:
 			userNum = input('請輸入學號 >')
 			for item in userData:
@@ -70,7 +74,7 @@ while True:
 			print('作者: '+userBook['作者'])
 			check = input('確認借閱請輸入 y , 取消輸入 n > ')
 			if check == 'y':
-				borrowinfo = [userName, time.strftime(fmt), userBook['書籍名稱'], userBook['ISBN']]
+				borrowinfo = [userName, userNum, time.strftime(fmt), userBook['書籍名稱'], userBook['ISBN']]
 				os.system(clean)
 				print('已成功借書')
 				print('借閱人: '+userName)
@@ -81,3 +85,23 @@ while True:
 			else:
 				os.system(clean)
 				print('已取消')
+	if mode == 'r':
+		rentBook = []
+		if len(userName) == 0:
+			userNum = input('請輸入學號 >')
+		for item in userData:
+			if str(item['學號']) == userNum:
+				userName = item['姓名']
+				exit_flag = False
+				os.system(clean)
+				break
+		if len(userName) == 0:
+			print("沒有找到您的資料, 請在重新輸入一次")
+			break
+		for item in borrowData:
+			if str(item['借閱人學號']) == userNum:
+				rentBook.append(item)
+		if len(rentBook) == 0:
+			os.system(clean)
+			print('您沒有已借閱的書, 快去借書 ：）')
+		print(rentBook)
