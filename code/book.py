@@ -25,6 +25,5 @@ sheet = client.open('圖書總表').worksheet('書籍總表')
 isbncode = input('請輸入isbn >')
 
 data = bookSearch(isbncode)
-print(sheet.get_all_records())
 print(data)
 sheet.append_row(data)
