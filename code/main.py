@@ -113,10 +113,12 @@ while True:
 		if len(userName) == 0:
 			print("沒有找到您的資料, 請再重新輸入一次")
 		else:
+			i = 2
 			for item in borrowData:
-				if str(item['借閱人班級座號']) == userNum:
+				if str(item['借閱人班級座號']) == userNum and len(borrowSheet.cell(i,6).value) == 0:
 					rentBookList=[item['借閱書籍'], item['ISBN']]
 					rentBook.append(rentBookList)
+				i += 1
 			if len(rentBook) == 0:
 				os.system(clean)
 				print('您沒有已借閱的書, 先去借書再來吧 ：）')
@@ -130,7 +132,7 @@ while True:
 				else:
 					i = 2
 					for book in rentBook:
-						if book[1] == int(returnBook) and len(borrowSheet.cell(i,6).value) == 0:
+						if book[1] == int(returnBook):
 							print('您確定您要歸還'+book[0]+'嗎？')
 							confirm = input('確定輸入y, 取消輸入 n > ')
 							if confirm == 'y':
@@ -146,7 +148,7 @@ while True:
 									i += 1
 								conti = input('還有要歸還的書嗎？, 有請輸入 y, 無則輸入 n')
 								if not conti == 'y':
-									userName = ''																	
+									userName = ''
 
 								rentBook = []
 								updateSheet()
