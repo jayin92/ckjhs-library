@@ -64,11 +64,11 @@ while True:
 			os.system(clean)
 			print("再見"+userName+"同學")
 			updateSheet()
+			os.system(clean)
 			print('請稍後...正在從Google Drive載入資料')
 			userName = ''
 			isbn = ''
 			userBook = 'pass'
-			# mode = ''
 		userBook = ''
 		row = 2
 
@@ -77,7 +77,7 @@ while True:
 				userBook = book
 				break
 			row += 1
-		if len(userBook) == 0:
+		if len(userBook) == 0 and len(userName) != 0:
 			os.system(clean)
 			print('找不到這本書, 請確認ISBN是否正確')
 			time.sleep(2)
