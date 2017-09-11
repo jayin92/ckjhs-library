@@ -68,7 +68,9 @@ while True:
 			print('請稍後...正在從Google Drive載入資料')
 			userName = ''
 			isbn = ''
-			userBook = 'pass'
+			check = 'pass'
+			conti = ''
+			contiReturn
 		userBook = ''
 		row = 2
 
@@ -77,10 +79,12 @@ while True:
 				userBook = book
 				break
 			row += 1
-		if len(userBook) == 0 and len(userName) != 0:
+		if len(userBook) == 0 and check != 'pass':
 			os.system(clean)
 			print('找不到這本書, 請確認ISBN是否正確')
 			time.sleep(2)
+		elif userBook == 'pass':
+			pass
 		elif not len(str(userBook['借出'])) == 0:
 			os.system(clean)
 			print(userBook['書籍名稱']+'已被'+str(userBook['借出'])+'借出')
@@ -136,6 +140,7 @@ while True:
 				os.system(clean)
 				print('您沒有已借閱的書, 先去借書再來吧 ：）')
 				contiReturn = ''
+				userName = ''
 				time.sleep(2)
 			else:
 				os.system(clean)
