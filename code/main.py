@@ -21,23 +21,27 @@ exit_flag = True
 fmt = '%Y/%m/%d %H:%M:%S'
 isbn = ''
 # borrowSheet.resize(1)
+userSheet = client.open('圖書總表'). worksheet('借閱人總表')
+userData = userSheet.get_all_records()
 def updateSheet():
-	global borrowSheet, userSheet, bookSheet, userData, bookData, borrowData
+	global borrowSheet, bookSheet, borrowData, bookData
 	borrowSheet = client.open('圖書總表').worksheet('借閱總表')
-	userSheet = client.open('圖書總表'). worksheet('借閱人總表')
 	bookSheet = client.open('圖書總表'). worksheet('書籍總表')
-	userData = userSheet.get_all_records()
 	bookData = bookSheet.get_all_records()
 	borrowData = borrowSheet.get_all_records()
 userName = ''
 borrowBook = False
 os.system(clean)
+print('請稍後...正在從Google Drive載入資料')
 updateSheet()
 mode = 'b'
 conti = ''
+contiReturn = ''
 while True:
 	os.system(clean)
 	if conti == 'y':
+		mode = 'b'
+	elif contiReturn == 'y':
 		mode = 'r'
 	else:
 		mode = input('輸入b來借書, r來還書 >')
@@ -52,6 +56,7 @@ while True:
 		if len(userName) == 0:
 			print("沒有找到您的資料, 請再重新輸入一次")
 			updateSheet()
+			print('請稍後...正在從Google Drive載入資料')
 		else:
 			print('歡迎'+userName+'同學, 今天要借什麼書呢？')
 			isbn = input("請刷條碼或輸入 q 取消借書 >")
@@ -59,11 +64,14 @@ while True:
 			os.system(clean)
 			print("再見"+userName+"同學")
 			updateSheet()
+			print('請稍後...正在從Google Drive載入資料')
 			userName = ''
 			isbn = ''
+			userBook = 'pass'
 			# mode = ''
 		userBook = ''
 		row = 2
+
 		for book in bookData:
 			if str(book['ISBN']) == isbn:
 				userBook = book
@@ -77,7 +85,9 @@ while True:
 			os.system(clean)
 			print(userBook['書籍名稱']+'已被'+str(userBook['借出'])+'借出')
 			print('請選擇其他書籍 ：）')
-			time.sleep(5)
+			conti = ''
+			userName = ''
+			time.sleep(2)
 		else:
 			os.system(clean)
 			print('書籍名稱: '+userBook['書籍名稱'])
@@ -89,6 +99,7 @@ while True:
 				borrowSheet.append_row(borrowinfo)
 				bookSheet.update_cell(row, 5, userNum)
 				updateSheet()
+				print('請稍後...正在上傳資料到Google Drive')
 				print('已成功借書')
 				print('借閱人: '+userName)
 				print('借閱書籍: '+userBook['書籍名稱'])
@@ -113,6 +124,7 @@ while True:
 				break
 		if len(userName) == 0:
 			print("沒有找到您的資料, 請再重新輸入一次")
+			time.sleep(2)
 		else:
 			i = 2
 			for item in borrowData:
@@ -123,7 +135,11 @@ while True:
 			if len(rentBook) == 0:
 				os.system(clean)
 				print('您沒有已借閱的書, 先去借書再來吧 ：）')
+				contiReturn = ''
+				time.sleep(2)
 			else:
+				os.system(clean)
+				print(userName+'同學您好')
 				print('您借的書如下：')
 				for item in rentBook:
 					print(item)
@@ -132,9 +148,11 @@ while True:
 					print('已取消')
 				else:
 					i = 2
+					haveRentBook = False
 					for book in rentBook:
 						if book[1] == int(returnBook):
-							print('您確定您要歸還'+book[0]+'嗎？')
+							haveRentBook = True
+							print('您確定您要歸還 '+book[0]+' 嗎？')
 							confirm = input('確定輸入y, 取消輸入 n > ')
 							if confirm == 'y':
 								i = 2
@@ -148,15 +166,19 @@ while True:
 										bookSheet.update_cell(i,5,'')
 									i += 1
 								updateSheet()
-								print('已成功歸還')
-								conti = input('還有要歸還的書嗎？, 有請輸入 y, 無則輸入 n >')
-								if not conti == 'y':
+								print('請稍後...正在更新資料')
+								os.system(clean)
+								print('已成功歸還 '+book[0])
+								contiReturn = input('還有要歸還的書嗎？, 有請輸入 y, 無則輸入 n >')
+								if not contiReturn == 'y':
 									userName = ''
 								rentBook = []
 							else:
 								print('已取消')
+								userName = ''
 								time.sleep(2)
-						else:
+						elif i-1 == len(rentBook) and haveRentBook is False:
 							print('沒有在您的借閱紀錄中找到這本書, 請重新掃條碼')
+							contiReturn = 'y'
 							time.sleep(2)
 						i += 1
