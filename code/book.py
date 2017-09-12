@@ -22,8 +22,17 @@ client = gspread.authorize(cred)
 
 sheet = client.open('圖書總表').worksheet('書籍總表')
 
-isbncode = input('請輸入isbn >')
+# isbncode = input('請輸入isbn >')
+with open('books.txt', 'r') as f:
+    books = [line.strip() for line in f]
 
-data = bookSearch(isbncode)
-print(data)
-sheet.append_row(data)
+error = []
+for book in books:
+	try:
+		data = bookSearch(book)
+		print(data)
+		sheet.append_row(data)
+	except:
+		error.append(book)
+print('已全部上傳')
+print(error)

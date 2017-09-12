@@ -56,6 +56,7 @@ while True:
 					os.system(clean)
 		if len(userName) == 0:
 			print("沒有找到您的資料, 請再重新輸入一次")
+			quit = True
 			updateSheet()
 			print('請稍後...正在從Google Drive載入資料')
 		else:
