@@ -80,7 +80,7 @@ while True:
 				userBook = book
 				break
 			row += 1
-		if len(userBook) == 0 and check != 'pass':
+		if len(userBook) == 0 and quit is False:
 			os.system(clean)
 			print('找不到這本書, 請確認ISBN是否正確')
 			time.sleep(2)
