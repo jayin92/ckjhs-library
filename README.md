@@ -5,7 +5,7 @@
 下載Python(3.5.2版本, Windows 64位元)請[按我](https://www.python.org/ftp/python/3.5.2/python-3.5.2-amd64.exe)
 
 安裝過程中務必將Python加入系統變數如下圖:
-<blockquote class="imgur-embed-pub" lang="en" data-id="a/zDTWF"><a href="//imgur.com/zDTWF"></a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+![Add Python 3.5 to PATH務必打勾](https://i.imgur.com/zDTWF.jpg)
 
 安裝後開啟命令提示字元(`Windows鍵 + R`後輸入`cmd`)開始輸入以下指令
 
