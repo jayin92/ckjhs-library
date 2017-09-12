@@ -24,7 +24,7 @@
 
 然後將`client_secret.json`放入`code`資料夾
 
-最猴於自己的Google Drive建立名稱為 `圖書總表`的Google試算表並放入三個工作表, 分別為：
+最後於自己的Google Drive建立名稱為 `圖書總表`的Google試算表並放入三個工作表, 分別為：
 
 `借閱總表` , `借閱人總表`及 `書籍總表`
 
