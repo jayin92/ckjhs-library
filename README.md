@@ -6,7 +6,10 @@
 
 安裝過程中務必將Python加入系統變數如下圖:
 
-![Add Python 3.5 to PATH務必打勾](https://i.imgur.com/zDTWF.png)
+![Add Python 3.5 to PATH務必打勾](https://dbader-static-defugurjmqrkjo.netdna-ssl.com/figures/windows-setup-run-the-python-installer.jpg)
+
+以上圖檔由
+[此網站](https://dbader.org/blog/installing-python-and-pip-on-windows-10)提供
 
 安裝後開啟命令提示字元(`Windows鍵 + R`後輸入`cmd`)開始輸入以下指令
 
