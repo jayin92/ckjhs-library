@@ -130,8 +130,7 @@ while True:
 			os.system(clean)
 			print('書籍名稱: '+userBook['書籍名稱'])
 			print('作者: '+userBook['作者'])
-			check = input('確認借閱請輸入 y , 取消借閱輸入 n > ')
-			if check == 'y':
+			if yes_or_no("確定要借閱嗎?") is True:
 				if add_book is True:
 					bookSheet.append_row(new_book)
 					add_book = False
