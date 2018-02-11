@@ -1,34 +1,50 @@
 # coding=<UTF-8>
 
+### import library ###
 import gspread
 import time
-import isbnlib
 from oauth2client.service_account import ServiceAccountCredentials
 import platform
 import os
 
-
+### confirm operating system ###
 if platform.system() == 'Windows':
 	clean = 'cls'
 else:
 	clean = 'clear'
 
+### set up google drive api ###
 scope = ['https://spreadsheets.google.com/feeds']
 cred = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 client = gspread.authorize(cred)
+
+### set up variables ###
 mode = 2
 exit_flag = True
 fmt = '%Y/%m/%d %H:%M:%S'
 isbn = ''
-# borrowSheet.resize(1)
+
+
+### get data sheet from google drive ###
 userSheet = client.open('圖書總表'). worksheet('借閱人總表')
 userData = userSheet.get_all_records()
+
 def updateSheet():
 	global borrowSheet, bookSheet, borrowData, bookData
 	borrowSheet = client.open('圖書總表').worksheet('借閱總表')
 	bookSheet = client.open('圖書總表'). worksheet('書籍總表')
 	bookData = bookSheet.get_all_records()
 	borrowData = borrowSheet.get_all_records()
+
+def yes_or_no(question):
+    reply = str(input(question+' (y/n): ')).lower().strip()
+    if reply[0] == 'y':
+        return True
+    if reply[0] == 'n':
+        return False
+    else:
+        return yes_or_no("請輸入 y 或 n")
+
 userName = ''
 borrowBook = False
 os.system(clean)
@@ -39,13 +55,14 @@ conti = ''
 contiReturn = ''
 while True:
 	quit = False
+	new_book = []
 	os.system(clean)
 	if conti == 'y':
 		mode = 'b'
 	elif contiReturn == 'y':
 		mode = 'r'
 	else:
-		mode = input('輸入b來借書, r來還書 >')
+		mode = input('b-->借書, r-->還書 >')
 	if mode == 'b':
 		if len(userName) == 0:
 			userNum = input('請輸入班級座號(五碼) >')
@@ -72,7 +89,7 @@ while True:
 			isbn = ''
 			quit = True
 			conti = ''
-			contiReturn
+			contiReturn = ''
 		userBook = ''
 		row = 2
 
@@ -83,7 +100,20 @@ while True:
 			row += 1
 		if len(userBook) == 0 and quit is False:
 			os.system(clean)
-			print('找不到這本書, 請確認ISBN是否正確')
+			print('資料庫中找不到這本書, 請確認ISBN是否正確')
+			if yes_or_no("要自行輸入書的資料嗎並借出嗎") is True:
+				print(isbn)
+				title = input('書名: ')
+				author = input('作者: ')
+				isbn_confirm = input('請再掃描一次條碼: ')
+				if not str(isbn_confirm) == str(isbn):
+					print("條碼不一致")
+				else:
+					new_book=[title, author, '', isbn]
+					userBook = {'書籍名稱':title,'作者':author,'ISBN':isbn}
+					add_book = True
+					row = bookSheet.row_count + 1
+					borrow_confirm = True
 			time.sleep(2)
 		elif quit is True:
 			pass
@@ -94,12 +124,17 @@ while True:
 			conti = ''
 			userName = ''
 			time.sleep(2)
-		else:
+
+		if borrow_confirm is True:
+			borrow_confirm = False
 			os.system(clean)
 			print('書籍名稱: '+userBook['書籍名稱'])
 			print('作者: '+userBook['作者'])
 			check = input('確認借閱請輸入 y , 取消借閱輸入 n > ')
 			if check == 'y':
+				if add_book is True:
+					bookSheet.append_row(new_book)
+					add_book = False
 				borrowinfo = [userName, userNum, time.strftime(fmt), userBook['書籍名稱'], userBook['ISBN']]
 				os.system(clean)
 				borrowSheet.append_row(borrowinfo)
@@ -110,10 +145,9 @@ while True:
 				print('借閱人: '+userName)
 				print('借閱書籍: '+userBook['書籍名稱'])
 				print('借閱時間: '+time.strftime(fmt))
-				conti = input('還有要借書嗎？, 有 請輸入y, 沒有 輸入n >')
 				isbn = ''
 				userBook = ''
-				if not conti == 'y':
+				if yes_or_no("還有要借書嗎") is not True:
 					userName = ''
 			else:
 				os.system(clean)
@@ -159,9 +193,7 @@ while True:
 					for book in rentBook:
 						if book[1] == int(returnBook):
 							haveRentBook = True
-							print('您確定您要歸還 '+book[0]+' 嗎？')
-							confirm = input('確定輸入y, 取消輸入 n > ')
-							if confirm == 'y':
+							if yes_or_no('您確定您要歸還 '+book[0]+' 嗎？') is True:
 								i = 2
 								for item in borrowData:
 									if book[1] == item['ISBN']and len(borrowSheet.cell(i,6).value) == 0:
