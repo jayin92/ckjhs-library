@@ -6,7 +6,7 @@ import time
 from oauth2client.service_account import ServiceAccountCredentials
 import platform
 import os
-
+from terminaltables import SingleTable, AsciiTable
 ### confirm operating system ###
 if platform.system() == 'Windows':
 	clean = 'cls'
@@ -43,11 +43,13 @@ def yes_or_no(question):
 		return False
 	else:
 		return yes_or_no("請輸入 y 或 n")
+def print_table(list, title=None):
+	print(AsciiTable(list, title).table)
 #############################################
 def get_user_name():
 	global userName, userID
 	userName = ''
-	userID = input("輸入學號 >")
+	userID = input("請輸入班級座號(五碼) >")
 	for student in userData:
 		if str(student['班級座號']) == userID:
 			userName = student['姓名']
@@ -130,7 +132,7 @@ def confirm_borrow():
 			borrow_book()
 		else:
 			print('感謝使用此系統')
-			sleep(3)
+			time.sleep(3)
 			main()
 	else:
 		if yes_or_no('有要借其他書嗎?'):
@@ -139,6 +141,52 @@ def confirm_borrow():
 			print('感謝使用此系統')
 			time.sleep(2)
 			main()
+def return_book():
+	global rentBook, returnBookList
+	get_rent_book()
+	if len(rentBook)<2:
+		os.system(clean)
+		print('您沒有借閱的書, 先去借書再來吧 ：）')
+		time.sleep(2)
+		main()
+	else:
+		returnBookList = [['欲歸還書籍', 'ISBN']]
+		multi_return_book()
+
+
+
+def get_rent_book():
+	global userID, rentBook
+	rentBook = []
+	i = 2
+	for item in borrowData:
+		if str(item['借閱人班級座號']) == userID and len(borrowSheet.cell(i,6).value) == 0:
+			rentBookList=[item['借閱書籍'], item['ISBN']]
+			rentBook.append(rentBookList)
+		i += 1
+	rentBook.insert(0,['借閱書籍', 'ISBN'])
+
+def multi_return_book():
+	global userName, rentBook, returnBookList
+	os.system(clean)
+	print(userName+'同學您好')
+	print('您借的書如下：')
+	print_table(rentBook)
+	returnISBN = str(input('請掃描欲歸還書籍條碼, 掃描完成輸入 d, 取消歸還輸入 q '+'(已輸入'+str(len(returnBookList)-1)+ ')>'))
+	print(returnISBN)
+	if returnISBN == 'd':
+		confirm_return(returnBookList)
+	elif returnISBN == 'q':
+		main()
+	else:
+		for book in rentBook:
+			if str(book[1]) == returnISBN:
+				returnBookList.append(book)
+		multi_return_book()
+
+def confirm_return(list):
+	print_table(list)
+
 
 def main():
 	global add_book
@@ -154,10 +202,12 @@ def main():
 		borrow_book()
 
 	elif mode == 'r':
-		print('r')
+		get_user_name()
+		return_book()
 	else:
 		os.system(clean)
 		print("請輸入 b 或 r")
 		main()
+
 
 main()
