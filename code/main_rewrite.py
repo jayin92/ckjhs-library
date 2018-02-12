@@ -169,7 +169,7 @@ def get_rent_book():
 
 def multi_return_book():
 	global userName, rentBook, returnList
-	# os.system(clean)
+	os.system(clean)
 	print('您借的書如下：')
 	returnISBN = str(input('請掃描欲歸還書籍條碼, 掃描完成輸入 d, 取消歸還輸入 q '+'(已輸入'+str(len(returnList)-1)+ ')>'))
 	if returnISBN == 'd':
