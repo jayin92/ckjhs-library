@@ -63,8 +63,9 @@ def get_user_name():
 		print('請稍後...正在從Google Drive載入資料')
 		get_user_name()
 def get_borrow_book(id):
+	returnList = []
 	for data in borrowData:
-		if id == data['借閱人班級座號']:
+		if id == str(data['借閱人班級座號']) and data['歸還時間'] == '':
 			title = data['借閱書籍']
 			time = data['借閱時間']
 			isbn = data['ISBN']
@@ -110,7 +111,7 @@ def multi_borrow_book():
 	print_table(borrowList)
 	isbn = str(input('請掃描欲借閱書籍條碼, 掃描完成輸入 d, 取消歸還輸入 q '+'(已輸入'+str(len(borrowList)-1)+ ')>'))
 	if isbn == 'd':
-		comfirm_borrow()
+		confirm_borrow()
 	elif isbn == 'q':
 		main()
 
@@ -160,6 +161,7 @@ def add_new_book():
 		borrowList.append(new_book)
 		updateSheet()
 		multi_return_book()
+def confirm_borrow():
 	global borrowList
 	os.system(clean)
 	print('欲借閱書籍:')
@@ -169,8 +171,11 @@ def add_new_book():
 			borrowinfo = [userName, userID, time.strftime(fmt), book[0], book[3]] #book[title, author, pubtime, isbn]
 			os.system(clean)
 			borrowSheet.append_row(borrowinfo)
-			bookSheet.update_cell(row, 5, userID)
+			for i,item in enumerate(bookData):
+				if book[3] == str(item['ISBN']):
+					bookSheet.update_cell(i+2, 5, userID)
 		updateSheet()
+		os.system(clean)
 		print('已成功借書')
 		print_table(get_borrow_book(userID))
 		if yes_or_no("還要繼續借書嗎"):
