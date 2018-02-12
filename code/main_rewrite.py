@@ -56,7 +56,7 @@ def get_user_name():
 		print('沒有找到您的資料, 請再重新輸入一次')
 		updateSheet()
 		print('請稍後...正在從Google Drive載入資料')
-		check_user_name()
+		get_user_name()
 def borrow_book():
 	global isbn
 	isbn = input('請刷條碼或輸入 q 取消借書 >')
