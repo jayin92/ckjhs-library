@@ -7,6 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import platform
 import os
 from terminaltables import SingleTable, AsciiTable
+from termcolor import colored, cprint
 ### confirm operating system ###
 if platform.system() == 'Windows':
 	clean = 'cls'
@@ -45,6 +46,8 @@ def yes_or_no(question):
 		return yes_or_no("請輸入 y 或 n")
 def print_table(list, title=None):
 	print(AsciiTable(list, title).table)
+def color_list(list, color):
+	return [colored(item, color) for item in list]
 #############################################
 def get_user_name():
 	global userName, userID
@@ -60,7 +63,7 @@ def get_user_name():
 		print('請稍後...正在從Google Drive載入資料')
 		get_user_name()
 def borrow_book():
-	global isbn
+	global isbn, userName
 	isbn = input('請刷條碼或輸入 q 取消借書 >')
 	if isbn == 'q':
 		os.system(clean)
@@ -104,7 +107,7 @@ def add_new_book():
 		add_new_book()
 	else:
 		new_book=[title, author, '', isbn]
-		userBook = {'書籍名稱':title,'作者':author,'ISBN':isbn}
+		userBook = {'書籍名稱':title,'作者':author,'出版年份':'','ISBN':isbn}
 
 		row = bookSheet.row_count + 1
 		add_book = True
@@ -112,13 +115,12 @@ def add_new_book():
 def confirm_borrow():
 	global add_book
 	os.system(clean)
-	print(type(userBook))
-	print(userBook)
 	if add_book is True:
 		add_book = False
 		bookSheet.append_row(new_book)
 	print('書籍名稱: '+userBook['書籍名稱'])
 	print('作者: '+userBook['作者'])
+	print('出版年份: '+userBook['出版年份'])
 	if yes_or_no("確定要借閱嗎?"):
 		borrowinfo = [userName, userID, time.strftime(fmt), userBook['書籍名稱'], userBook['ISBN']]
 		os.system(clean)
@@ -142,7 +144,7 @@ def confirm_borrow():
 			time.sleep(2)
 			main()
 def return_book():
-	global rentBook, returnBookList
+	global rentBook, returnList
 	get_rent_book()
 	if len(rentBook)<2:
 		os.system(clean)
@@ -150,42 +152,60 @@ def return_book():
 		time.sleep(2)
 		main()
 	else:
-		returnBookList = [['欲歸還書籍', 'ISBN']]
+		returnList = [['欲歸還書籍', 'ISBN']]
 		multi_return_book()
-
-
 
 def get_rent_book():
 	global userID, rentBook
 	rentBook = []
-	i = 2
-	for item in borrowData:
-		if str(item['借閱人班級座號']) == userID and len(borrowSheet.cell(i,6).value) == 0:
+	for (i,item) in enumerate(borrowData):
+		if str(item['借閱人班級座號']) == userID and len(borrowSheet.cell(i+2,6).value) == 0:
 			rentBookList=[item['借閱書籍'], item['ISBN']]
 			rentBook.append(rentBookList)
-		i += 1
+
 	rentBook.insert(0,['借閱書籍', 'ISBN'])
 
+	return rentBook
+
 def multi_return_book():
-	global userName, rentBook, returnBookList
-	os.system(clean)
-	print(userName+'同學您好')
+	global userName, rentBook, returnList
+	# os.system(clean)
 	print('您借的書如下：')
-	print_table(rentBook)
-	returnISBN = str(input('請掃描欲歸還書籍條碼, 掃描完成輸入 d, 取消歸還輸入 q '+'(已輸入'+str(len(returnBookList)-1)+ ')>'))
-	print(returnISBN)
+	returnISBN = str(input('請掃描欲歸還書籍條碼, 掃描完成輸入 d, 取消歸還輸入 q '+'(已輸入'+str(len(returnList)-1)+ ')>'))
 	if returnISBN == 'd':
-		confirm_return(returnBookList)
+		confirm_return()
 	elif returnISBN == 'q':
 		main()
 	else:
 		for book in rentBook:
+			print(returnList)
 			if str(book[1]) == returnISBN:
-				returnBookList.append(book)
+				returnList.append(book)
+		rentBook = [color_list(item,'green') if str(item[1]) == returnISBN else item for item in rentBook]
+
 		multi_return_book()
 
-def confirm_return(list):
-	print_table(list)
+def confirm_return():
+	global borrowData, borrowSheet, bookData, bookSheet, rentBook, returnList
+	os.system(clean)
+	print_table(returnList)
+	if yes_or_no('確認要歸還以上的書嗎'):
+		print('正在處理歸還資料...')
+		for book in returnList:
+			for (i,data) in enumerate(borrowData):
+				if str(book[1]) == str(data['ISBN']):
+					borrowSheet.update_cell(i+2,6,time.strftime(fmt))
+			for (i,data) in enumerate(bookData):
+				if str(book[1]) == str(data['ISBN']):
+					bookSheet.update_cell(i+2,5,'')
+		updateSheet()
+		print('已成功歸還'+str(len(returnList)-1)+'本書')
+		print('以下是您目前借閱的書')
+		print_table(get_rent_book())
+	else:
+		main()
+
+
 
 
 def main():
@@ -195,14 +215,13 @@ def main():
 	print('請稍後...正在從Google Drive載入資料')
 	updateSheet()
 	os.system(clean)
+	get_user_name()
+	print(userName+'同學您好')
 	mode = input('b : 借書, r : 還書 >')
 	if mode == 'b':
-		get_user_name()
-		print('歡迎'+userName+'同學, 今天要借什麼書呢？')
 		borrow_book()
 
 	elif mode == 'r':
-		get_user_name()
 		return_book()
 	else:
 		os.system(clean)
