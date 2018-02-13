@@ -6,7 +6,7 @@ import time
 from oauth2client.service_account import ServiceAccountCredentials
 import platform
 import os
-
+from sync import get_data_from_database
 ### confirm operating system ###
 if platform.system() == 'Windows':
 	clean = 'cls'
