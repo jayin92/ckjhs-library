@@ -1,5 +1,4 @@
 # coding=<UTF-8>
-
 ### import library ###
 import gspread
 import time
@@ -14,27 +13,16 @@ if platform.system() == 'Windows':
 	clean = 'cls'
 else:
 	clean = 'clear'
-
 ### set up google drive api ###
 scope = ['https://spreadsheets.google.com/feeds']
 cred = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 client = gspread.authorize(cred)
-###############################
-
 ### set up variables ###
 fmt = '%Y/%m/%d %H:%M:%S'
 isbn = ''
-
-
-### get data sheet from google drive ###
+### GET DATA FROM DATABASE ###
 conn = sqlite3.connect('library.db')
 c = conn.cursor()
-
-def update_google_drive():
-	global borrowSheet, userSheet, bookSheet
-	borrowSheet = client.open('圖書總表').worksheet('借閱總表')
-	userSheet = client.open('圖書總表'). worksheet('借閱人總表')
-	bookSheet = client.open('圖書總表'). worksheet('書籍總表')
 def get_data_from_database(table):
 	global conn
 	c = conn.cursor()
@@ -42,11 +30,16 @@ def get_data_from_database(table):
 	rows = c.fetchall()
 	return [list(t) for t in rows]
 def update_database():
-	global borrowData, bookData, userData         #    0        1         2          3      4          5
-	borrowData = get_data_from_database('borrow') # username, userid, borrow_time, title, isbn,   return_time
-	userData  = get_data_from_database('user')    # username, userid
-	bookData  = get_data_from_database('book')    # title,    author, pubtime,     isbn,  borrowid
-
+		global borrowData, bookData, userData         #    0        1         2          3      4          5
+		borrowData = get_data_from_database('borrow') # username, userid, borrow_time, title, isbn,   return_time
+		userData  = get_data_from_database('user')    # username, userid
+		bookData  = get_data_from_database('book')    # title,    author, pubtime,     isbn,  borrowid
+##############################
+def update_google_drive():
+	global borrowSheet, userSheet, bookSheet
+	borrowSheet = client.open('圖書總表').worksheet('借閱總表')
+	userSheet = client.open('圖書總表'). worksheet('借閱人總表')
+	bookSheet = client.open('圖書總表'). worksheet('書籍總表')
 def yes_or_no(question):
 	reply = str(input(question+' (y/n): ')).lower().strip()
 	if reply[0] == 'y':
@@ -198,16 +191,17 @@ def confirm_borrow():
 			time.sleep(2)
 			main()
 ############################################
-def get_rent_book():
-	global userID, rentBook
-	rentBook = []
-	for item in borrowData:
-		if str(item[1]) == userID and item[5] == '':
-			rentBookList=[item[3], item[2], item[4]] #[title, borrow_time, isbn]
-			rentBook.append(rentBookList)
-	rentBook.insert(0,['已借閱書籍','借閱時間', 'ISBN'])
-
-	return rentBook
+def return_book():
+			global rentBook, returnList
+			get_rent_book()
+			if len(rentBook)<2:
+				os.system(clean)
+				print('您沒有借閱的書, 先去借書再來吧 ：）')
+				time.sleep(2)
+				main()
+			else:
+				returnList = [['欲歸還書籍', '借閱時間', 'ISBN']]
+				multi_return_book()
 def multi_return_book():
 	global userName, rentBook, returnList
 	os.system(clean)
@@ -249,23 +243,22 @@ def confirm_return():
 		main()
 	else:
 		main()
-def return_book():
-			global rentBook, returnList
-			get_rent_book()
-			if len(rentBook)<2:
-				os.system(clean)
-				print('您沒有借閱的書, 先去借書再來吧 ：）')
-				time.sleep(2)
-				main()
-			else:
-				returnList = [['欲歸還書籍', '借閱時間', 'ISBN']]
-				multi_return_book()
+def get_rent_book():
+	global userID, rentBook
+	rentBook = []
+	for item in borrowData:
+		if str(item[1]) == userID and item[5] == '':
+			rentBookList=[item[3], item[2], item[4]] #[title, borrow_time, isbn]
+			rentBook.append(rentBookList)
+	rentBook.insert(0,['已借閱書籍','借閱時間', 'ISBN'])
+
+	return rentBook
 
 def main():
 	global add_book, borrowList
 	add_book = False
 	os.system(clean)
-	print('請稍後...正在從Google Drive載入資料')
+	print('請稍後...正在載入資料')
 	update_database()
 	os.system(clean)
 	get_user_name()
@@ -282,6 +275,5 @@ def main():
 		os.system(clean)
 		print("請輸入 b 或 r")
 		main()
-
 
 main()
