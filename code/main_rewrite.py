@@ -14,9 +14,9 @@ if platform.system() == 'Windows':
 else:
 	clean = 'clear'
 ### set up google drive api ###
-scope = ['https://spreadsheets.google.com/feeds']
-cred = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
-client = gspread.authorize(cred)
+# scope = ['https://spreadsheets.google.com/feeds']
+# cred = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+# client = gspread.authorize(cred)
 ### set up variables ###
 fmt = '%Y/%m/%d %H:%M:%S'
 isbn = ''
@@ -110,7 +110,7 @@ def borrow_book():
 		else:
 			confirm_borrow()
 def multi_borrow_book():
-	global borrowList
+	global borrowList, isbn
 	os.system(clean)
 	print_table(borrowList)
 	isbn = str(input('請掃描欲借閱書籍條碼, 掃描完成輸入 y, 取消借閱輸入 n '+'(已輸入'+str(len(borrowList)-1)+ ')>'))
@@ -144,7 +144,7 @@ def multi_borrow_book():
 			time.sleep(1)
 			main()
 def add_new_book():
-	global userBook, bookSheet, conn
+	global userBook, bookSheet, conn, isbn
 	c = conn.cursor()
 	title = str(input('書名: '))
 	author = str(input('作者: '))
@@ -155,8 +155,8 @@ def add_new_book():
 		time.sleep(3)
 		add_new_book()
 	else:
-		new_book=(title, author, pubtime, isbn)
-		c.execute("INSERT INTO borrow VALUES (?,?,?,?)", new_book)
+		new_book=(title, author, pubtime, isbn, '')
+		c.execute("INSERT INTO book VALUES (?,?,?,?,?)", new_book)
 		conn.commit()
 		update_database()
 		multi_borrow_book()
